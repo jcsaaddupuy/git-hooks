@@ -6,6 +6,13 @@ git diff --cached --name-status --diff-filter=ACMR | while read STATUS FILE; do
     if [[ "$FILE" =~ ^.+(py)$ ]]; then
 
         if grep --quiet "pdb.set_trace" $FILE ; then echo "MER IL EST FOU : debug point present in $FILE" && errors=1; fi
+        # flake errors checked :
+        # F821 : undefined name name
+        # F822 : undefined name name in __all__
+        # F823 : local variable name ... referenced before assignment
+        # F831 : duplicate argument name in function definition
+        # F841 : local variable name is assigned to but never used
+        # E901 : SyntaxError or IndentationError
         flake8 --select=F821,F822,F823,F831,F841,E901  $FILE
         [[ $? -ne 0  ]] && errors=1
 
