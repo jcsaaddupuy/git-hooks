@@ -1,0 +1,18 @@
+#!/bin/bash
+
+DIR=$(git rev-parse --show-toplevel)
+EMAIL=$(git config user.email)
+
+errors=0
+
+git diff --cached --name-status --diff-filter=ACMR | while read STATUS FILE; do
+    if [[ "$FILE" =~ ^.+(py)$ ]]; then
+
+        if grep --quiet "pdb.set_trace" $FILE ; then echo "MER IL EST FOU : debug point present in $FILE" && errors=1; fi
+        flake8 --select=F821,F822,F823,F831,F841,E901  $FILE
+        [[ $? -ne 0  ]] && errors=1
+
+        [ $errors -eq 1 ] && exit -1
+
+    fi
+done
